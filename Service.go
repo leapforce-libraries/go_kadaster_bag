@@ -50,6 +50,7 @@ func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http
 	// add authentication header
 	header := http.Header{}
 	header.Set("X-Api-Key", service.apiKey)
+	header.Set("Accept", "application/hal+json")
 	(*requestConfig).NonDefaultHeaders = &header
 
 	// add error model

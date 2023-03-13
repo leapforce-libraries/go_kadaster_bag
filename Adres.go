@@ -15,6 +15,7 @@ type AdressenConfig struct {
 	Huisnummer           *uint
 	Huisnummertoevoeging *string
 	Huisletter           *string
+	Query                *string
 	ExacteMatch          *bool
 	InclusiefEindStatus  *bool
 }
@@ -70,7 +71,7 @@ func (service *Service) Adressen(config *AdressenConfig) (*[]Adres, *errortools.
 		return nil, errortools.ErrorMessage("Config must not be a nil pointer")
 	}
 
-	var values url2.Values
+	var values = url2.Values{}
 	if config.WoonplaatsNaam != nil {
 		values.Set("woonplaatsNaam", *config.WoonplaatsNaam)
 	}
@@ -89,6 +90,9 @@ func (service *Service) Adressen(config *AdressenConfig) (*[]Adres, *errortools.
 	if config.Huisletter != nil {
 		values.Set("huisletter", *config.Huisletter)
 	}
+	if config.Query != nil {
+		values.Set("q", *config.Query)
+	}
 	if config.ExacteMatch != nil {
 		values.Set("exacteMatch", fmt.Sprintf("%v", *config.ExacteMatch))
 	}
@@ -99,7 +103,7 @@ func (service *Service) Adressen(config *AdressenConfig) (*[]Adres, *errortools.
 	var response AdressenResponse
 
 	requestConfig := go_http.RequestConfig{
-		Method:        http.MethodPost,
+		Method:        http.MethodGet,
 		Url:           service.url(fmt.Sprintf("adressen?%s", values.Encode())),
 		BodyModel:     config,
 		ResponseModel: &response,
