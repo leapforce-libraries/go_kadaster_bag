@@ -58,8 +58,8 @@ func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http
 	(*requestConfig).ErrorModel = &errorResponse
 
 	request, response, e := service.httpService.HttpRequest(requestConfig)
-	if len(errorResponse.Error) > 0 {
-		e.SetMessage(errorResponse.ErrorDescription)
+	if errorResponse.Title != "" {
+		e.SetMessage(errorResponse.Title)
 	}
 
 	return request, response, e
