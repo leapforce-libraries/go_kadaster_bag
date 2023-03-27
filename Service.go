@@ -15,6 +15,7 @@ const (
 	// this regex appears in error response if postcode has invalid format
 	// we use it in the function ValidatePostcode which provides a way to check the postcode format before calling the API itself
 	regexPostcode string = `^[1-9]{1}[0-9]{3}[ ]{0,1}[a-zA-Z]{2}$`
+	regexQuery    string = `[^\w\s,-]`
 )
 
 type Service struct {
@@ -22,6 +23,7 @@ type Service struct {
 	useAcceptatie bool
 	httpService   *go_http.Service
 	rPostcode     *regexp.Regexp
+	rQuery        *regexp.Regexp
 }
 
 type ServiceConfig struct {
@@ -53,6 +55,7 @@ func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
 		useAcceptatie: useAcceptatie,
 		httpService:   httpService,
 		rPostcode:     regexp.MustCompile(regexPostcode),
+		rQuery:        regexp.MustCompile(regexQuery),
 	}, nil
 }
 

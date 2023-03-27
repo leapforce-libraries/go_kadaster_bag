@@ -91,7 +91,7 @@ func (service *Service) Adressen(config *AdressenConfig) (*[]Adres, *errortools.
 		values.Set("huisletter", *config.Huisletter)
 	}
 	if config.Query != nil {
-		values.Set("q", *config.Query)
+		values.Set("q", service.rQuery.ReplaceAllString(*config.Query, " "))
 	}
 	if config.ExacteMatch != nil {
 		values.Set("exacteMatch", fmt.Sprintf("%v", *config.ExacteMatch))
