@@ -6,6 +6,7 @@ import (
 	go_http "github.com/leapforce-libraries/go_http"
 	"net/http"
 	url2 "net/url"
+	"strings"
 )
 
 type AdressenConfig struct {
@@ -66,6 +67,10 @@ type Adres struct {
 	} `json:"_links"`
 }
 
+func (service *Service) cleanQuery(rawQuery string) string {
+	return service.rQuery.ReplaceAllString(strings.ReplaceAll(strings.ReplaceAll(rawQuery, "\t", ""), "\n", ""), " ")
+}
+
 func (service *Service) Adressen(config *AdressenConfig) (*[]Adres, *errortools.Error) {
 	if config == nil {
 		return nil, errortools.ErrorMessage("Config must not be a nil pointer")
@@ -73,13 +78,13 @@ func (service *Service) Adressen(config *AdressenConfig) (*[]Adres, *errortools.
 
 	var values = url2.Values{}
 	if config.WoonplaatsNaam != nil {
-		values.Set("woonplaatsNaam", *config.WoonplaatsNaam)
+		values.Set("woonplaatsNaam", service.cleanQuery(*config.WoonplaatsNaam))
 	}
 	if config.Postcode != nil {
 		values.Set("postcode", *config.Postcode)
 	}
 	if config.OpenbareRuimteNaam != nil {
-		values.Set("openbareRuimteNaam", *config.OpenbareRuimteNaam)
+		values.Set("openbareRuimteNaam", service.cleanQuery(*config.OpenbareRuimteNaam))
 	}
 	if config.Huisnummer != nil {
 		values.Set("huisnummer", fmt.Sprintf("%v", *config.Huisnummer))
@@ -91,7 +96,7 @@ func (service *Service) Adressen(config *AdressenConfig) (*[]Adres, *errortools.
 		values.Set("huisletter", *config.Huisletter)
 	}
 	if config.Query != nil {
-		values.Set("q", service.rQuery.ReplaceAllString(*config.Query, " "))
+		values.Set("q", service.cleanQuery(*config.Query))
 	}
 	if config.ExacteMatch != nil {
 		values.Set("exacteMatch", fmt.Sprintf("%v", *config.ExacteMatch))
