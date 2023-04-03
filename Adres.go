@@ -45,7 +45,19 @@ type Adres struct {
 	PandIdentificaties               []string `json:"pandIdentificaties"`
 	Adresregel5                      string   `json:"adresregel5"`
 	Adresregel6                      string   `json:"adresregel6"`
-	Links                            struct {
+	TypeAdresseerbaarObject          *string  `json:"typeAdresseerbaarObject"`
+	AdresseerbaarObjectGeometrie     *struct {
+		Punt struct {
+			Type        string    `json:"type"`
+			Coordinates []float64 `json:"coordinates"`
+		} `json:"punt"`
+	} `json:"adresseerbaarObjectGeometrie"`
+	AdresseerbaarObjectStatus *string   `json:"adresseerbaarObjectStatus"`
+	Gebruiksdoelen            *[]string `json:"gebruiksdoelen"`
+	Oppervlakte               *int      `json:"oppervlakte"`
+	OorspronkelijkBouwjaar    *[]string `json:"oorspronkelijkBouwjaar"`
+	PandStatussen             *[]string `json:"pandStatussen"`
+	Links                     struct {
 		Self struct {
 			Href string `json:"href"`
 		} `json:"self"`

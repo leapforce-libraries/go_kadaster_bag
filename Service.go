@@ -62,6 +62,9 @@ func NewService(config *ServiceConfig) (*Service, *errortools.Error) {
 func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http.Request, *http.Response, *errortools.Error) {
 	// add authentication header
 	header := http.Header{}
+	if requestConfig.NonDefaultHeaders != nil {
+		header = *requestConfig.NonDefaultHeaders
+	}
 	header.Set("X-Api-Key", service.apiKey)
 	header.Set("Accept", "application/hal+json")
 	(*requestConfig).NonDefaultHeaders = &header
