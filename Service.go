@@ -6,6 +6,8 @@ import (
 	go_http "github.com/leapforce-libraries/go_http"
 	"net/http"
 	"regexp"
+	"strconv"
+	"time"
 )
 
 const (
@@ -73,12 +75,39 @@ func (service *Service) httpRequest(requestConfig *go_http.RequestConfig) (*http
 	errorResponse := ErrorResponse{}
 	(*requestConfig).ErrorModel = &errorResponse
 
-	request, response, e := service.httpService.HttpRequest(requestConfig)
-	if errorResponse.Title != "" {
-		e.SetMessage(errorResponse.Title)
-	}
+	attempts := 10
+	for {
+		request, response, e := service.httpService.HttpRequest(requestConfig)
+		if response != nil && attempts > 0 {
+			if response.StatusCode == http.StatusTooManyRequests {
+				kadasterRateLimitDayLimitRemaining := response.Header.Get("Kadaster-RateLimit-DayLimit-Remaining")
+				if kadasterRateLimitDayLimitRemaining != "" {
+					kadasterRateLimitDayLimitRemainingInt, err := strconv.ParseInt(kadasterRateLimitDayLimitRemaining, 10, 64)
+					if err == nil {
+						if kadasterRateLimitDayLimitRemainingInt <= 0 {
+							return nil, nil, errortools.ErrorMessage("Daily quotum exceeded")
+						}
+					}
+				}
+				rateLimitReset := response.Header.Get("RateLimit-Reset")
+				if rateLimitReset != "" {
+					rateLimitResetInt, err := strconv.ParseInt(rateLimitReset, 10, 64)
+					if err == nil {
+						if rateLimitResetInt > 0 {
+							time.Sleep(time.Duration(rateLimitResetInt+1) * time.Second)
+							attempts--
+							continue
+						}
+					}
+				}
+			}
+		}
+		if errorResponse.Title != "" {
+			e.SetMessage(errorResponse.Title)
+		}
 
-	return request, response, e
+		return request, response, e
+	}
 }
 
 func (service *Service) url(path string) string {
